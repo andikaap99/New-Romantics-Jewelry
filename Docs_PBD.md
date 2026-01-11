@@ -260,3 +260,61 @@ Perhatikan struktur detail_produk yang sekarang memuat info nama barang & harga 
   }
 ]
 ```
+
+#### Buat Transaksi Pembelian
+- URL: /purchases
+- Method: POST
+ 
+**Skenario A: Restock Barang Lama**
+Gunakan ini jika produk sudah ada di database (sudah punya ID), kita tinggal menambah stoknya saja.
+
+**Request Body (JSON)**
+```
+{
+  "id_produk": 1,
+  "jumlah": 50,
+  "harga_beli": 4000000,
+  "nama_penjual": "Toko Emas Pusat",
+  "no_hp_penjual": "08123456789"
+}
+```
+
+**Skenario B: Beli Barang Baru**
+Gunakan ini jika produk belum pernah ada di sistem. Backend akan otomatis membuatkan produk baru + kategori (jika valid) + stok awalnya.
+
+Aturan:
+- id_produk wajib diisi null.
+- nama_produk_baru, kode_kategori_baru, dan harga_jual_baru (harga toko) WAJIB diisi.
+
+**Request Body (JSON)**
+```
+{
+  "id_produk": null,
+  "nama_produk_baru": "Kalung Blue Diamond",
+  "kode_kategori_baru": "KB",
+  "harga_jual_baru": 6000000,
+  "jumlah": 10,
+  "harga_beli": 5500000,
+  "nama_penjual": "jowney",
+  "no_hp_penjual": "081299998888"
+}
+```
+
+**Response Sukses (200 OK)**
+```
+{
+  "kode_pembelian": 15,
+  "tgl_transaksi": "2026-01-11T14:30:00",
+  "nama_penjual": "Supplier Jakarta",
+  "jumlah": 10,
+  "produk": {
+    "nama_produk": "Kalung Blue Diamond",
+    "harga": 6000000
+  }
+}
+```
+
+Kemungkinan Error:
+- 404 Not Found: Jika Restock Barang Lama tapi ID Produk salah.
+- 404 Not Found: Jika Beli Barang Baru tapi kode_kategori_baru tidak ada di database (harus buat kategori dulu).
+- 422 Unprocessable Entity: Format JSON salah (lupa koma, typo field).
