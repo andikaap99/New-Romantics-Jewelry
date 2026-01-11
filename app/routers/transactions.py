@@ -2,12 +2,20 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.schemas.transaction import TransaksiPenjualanCreate, TransaksiPenjualanResponse
+from app.schemas.transaction import TransaksiPenjualanCreate, TransaksiPenjualanResponse, TransaksiPembelianCreate, TransaksiPembelianResponse
 from app.crud import crud_transaction
 from app.dependencies import get_current_user # Dependency kita tadi
 from app.models.user import User
 
 router = APIRouter()
+
+@router.post("/purchases", response_model=TransaksiPembelianResponse)
+def create_purchase(
+    transaksi: TransaksiPembelianCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user) # Tetap butuh login biar aman
+):
+    return crud_transaction.create_pembelian(db, transaksi)
 
 @router.post("/transactions", response_model=TransaksiPenjualanResponse)
 def create_transaction(

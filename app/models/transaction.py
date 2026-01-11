@@ -9,9 +9,15 @@ class TransaksiPembelian(Base):
 
     kode_pembelian = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_produk = Column(Integer, ForeignKey("produk.id_produk"), nullable=False)
-    # ... kolom lain ...
+    nama_penjual = Column(String(100)) # Nama Supplier
+    no_hp_penjual = Column(String(20))
+    harga_beli = Column(DECIMAL(18, 2), nullable=False) # Harga beli dari supplier
     
-    # Hubungan ke Produk
+    # --- TAMBAHAN BARU ---
+    jumlah = Column(Integer, nullable=False) # Berapa pcs yang dibeli?
+    
+    tgl_transaksi = Column(DateTime(timezone=True), server_default=func.now())
+
     produk = relationship("Produk", back_populates="pembelian")
 
 class TransaksiPenjualan(Base):
