@@ -17,6 +17,14 @@ def create_purchase(
 ):
     return crud_transaction.create_pembelian(db, transaksi)
 
+@router.get("/purchases", response_model=List[TransaksiPembelianResponse])
+def read_purchases_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user) # Tetap diproteksi login
+):
+    return crud_transaction.get_all_pembelian(db)
+
+
 @router.post("/transactions", response_model=TransaksiPenjualanResponse)
 def create_transaction(
     transaksi: TransaksiPenjualanCreate, 

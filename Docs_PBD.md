@@ -260,3 +260,116 @@ Perhatikan struktur detail_produk yang sekarang memuat info nama barang & harga 
   }
 ]
 ```
+
+#### Buat Transaksi Pembelian (NEW UPDATE)
+- URL: /purchases
+- Method: POST
+ 
+**Skenario A: Restock Barang Lama**
+Gunakan ini jika produk sudah ada di database (sudah punya ID), kita tinggal menambah stoknya saja.
+
+**Request Body (JSON)**
+```
+{
+  "id_produk": 1,
+  "jumlah": 50,
+  "harga_beli": 4000000,
+  "nama_penjual": "Toko Emas Pusat",
+  "no_hp_penjual": "08123456789"
+}
+```
+
+**Skenario B: Beli Barang Baru**
+Gunakan ini jika produk belum pernah ada di sistem. Backend akan otomatis membuatkan produk baru + kategori (jika valid) + stok awalnya.
+
+Aturan:
+- id_produk wajib diisi null.
+- nama_produk_baru, kode_kategori_baru, dan harga_jual_baru (harga toko) WAJIB diisi.
+
+**Request Body (JSON)**
+```
+{
+  "id_produk": null,
+  "nama_produk_baru": "Kalung Blue Diamond",
+  "kode_kategori_baru": "KB",
+  "harga_jual_baru": 6000000,
+  "jumlah": 10,
+  "harga_beli": 5500000,
+  "nama_penjual": "jowney",
+  "no_hp_penjual": "081299998888"
+}
+```
+
+**Response Sukses (200 OK)**
+```
+{
+  "kode_pembelian": 15,
+  "tgl_transaksi": "2026-01-11T14:30:00",
+  "nama_penjual": "Supplier Jakarta",
+  "jumlah": 10,
+  "produk": {
+    "nama_produk": "Kalung Blue Diamond",
+    "harga": 6000000
+  }
+}
+```
+
+Kemungkinan Error:
+- 404 Not Found: Jika Restock Barang Lama tapi ID Produk salah.
+- 404 Not Found: Jika Beli Barang Baru tapi kode_kategori_baru tidak ada di database (harus buat kategori dulu).
+- 422 Unprocessable Entity: Format JSON salah (lupa koma, typo field).
+ 
+#### Lihat Semua Riwayat Transaksi Pembelian (NEW UPDATE)
+Endpoint ini digunakan untuk halaman "Laporan Pembelian". Data ditampilkan lengkap dengan nama barang yang terjual.
+- URL: /purchases
+- Method: GET
+- Auth: Wajib Login (Butuh Header Authorization: Bearer ...)
+
+**Response Sukses (200 OK)**
+Perhatikan struktur detail_produk yang sekarang memuat info nama barang & harga.
+```
+[
+  {
+    "kode_pembelian": 1,
+    "tgl_transaksi": "2026-01-11T14:35:59",
+    "nama_penjual": "Jowney",
+    "jumlah": 1,
+    "produk": {
+      "nama_produk": "Kalung Blue Diamond",
+      "harga": 6000000
+    }
+  }
+]
+```
+ 
+#### Predik Harga Berlian (NEW UPDATE)
+- URL: /predict
+- Method: POST
+
+*Parameter Input***
+| Parameter | Tipe  | Range | Keterangan                              |
+|-----------|-------|-------|-----------------------------------------|
+| carat     | Float | > 0.0 | Berat berlian (ct). Contoh: 0.5, 1.2.   |
+| cut       | Int   | 1 - 5 | Kualitas Potongan (1: Fair, 5: Ideal).  |
+| color     | Int   | 1 - 7 | Warna (1: J/Kuning, 7: D/Paling Putih). |
+| clarity   | Int   | 1 - 8 | Kejernihan (1: I1, 8: IF/Sempurna).     |"
+
+**Request Body (JSON)**
+```
+{
+  "carat": 1.5,
+  "cut": 5,
+  "color": 6,
+  "clarity": 7
+}
+```
+
+**Response Sukses (200 OK)**
+```
+{
+  "estimated_price": 15753424
+}
+```
+
+Kemungkinan Error:
+- Endpoint ini memuat file model (.pkl) dari folder server. Jika file model tidak ditemukan, harga akan bernilai 0.

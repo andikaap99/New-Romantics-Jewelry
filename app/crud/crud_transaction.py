@@ -59,6 +59,11 @@ def create_pembelian(db: Session, pembelian: TransaksiPembelianCreate):
         db.rollback()
         raise e
 
+def get_all_pembelian(db: Session):
+    # Mengambil semua data pembelian, urutkan dari yang terbaru
+    return db.query(TransaksiPembelian).order_by(TransaksiPembelian.tgl_transaksi.desc()).all()
+
+
 def create_transaksi_penjualan(db: Session, transaksi: TransaksiPenjualanCreate, user_id: int):
     # 1. Buat Header Transaksi
     db_transaksi = TransaksiPenjualan(
